@@ -360,7 +360,10 @@ void CDECL CDECL_EXT modbus_tcp_server__main(modbus_tcp_server_main_struct *p)//
             }
         }
 }
-// {
+
+
+/* select with list */
+/* Conflicting with other sockets!!*/
 //     if(!p->pInstance->Enable)
 //     {
 //         printf("modbusTCP unable\n");
@@ -593,134 +596,6 @@ void CDECL CDECL_EXT modbus_tcp_server__main(modbus_tcp_server_main_struct *p)//
 // }
 
 
-
-/* select with chain table */
-// {
-//     //fprintf(stdout, "I'm Server!\n");
-//     if(Server_Connect == 1)
-//     {   
-//         pStart = create_head();
-//         Server = modbus_new_tcp("127.0.0.1",p->pInstance->Port);
-//         if (Server == NULL) 
-//         {
-//             fprintf(stderr, "Unable to allocate libmodbus context: %s\n",modbus_strerror(errno));
-//             p->pInstance->Error = errno;
-//             return -1;
-//         }
-//         printf("Server is %d\r\n",Server);
-//         //modbus_set_debug(Server, TRUE); 
-
-//         Socket = modbus_tcp_listen(Server, 10);
-//         fdmax = Socket;
-//         insert_tail(pStart,fdmax);
-//         printf("socket is %d\r\n",Socket);
-//         if(Socket == -1)
-//         {
-//             fprintf(stderr, "Failed to listen: %s\n",modbus_strerror(errno));
-//             p->pInstance->Error = errno;
-//             close(Socket);
-//             modbus_free(Server);
-//             return -1;
-//         }
-        
-//         mb_mapping = modbus_mapping_new(0, 0,(p->pInstance->Outputs__Array__Info->diUpper)+1,(p->pInstance->Inputs__Array__Info->diUpper)+1);//it's necessary
-//         if(mb_mapping == NULL)
-//         {
-//             fprintf(stderr, "Failed to allocate the mapping: %s\n",modbus_strerror(errno));
-//             p->pInstance->Error = errno;
-//             close(Socket);
-//             modbus_free(Server);
-//             return -1;
-//         } 
-//         temp_tab_registers = mb_mapping->tab_registers;
-//         temp_tab_input_registers = mb_mapping->tab_input_registers;
-
-//         mb_mapping->tab_registers = (p->pInstance->Outputs);
-//         mb_mapping->tab_input_registers = (p->pInstance->Inputs);
-
-//         Server_Time.tv_sec = 0;
-//         Server_Time.tv_usec=0;
-//         modbus_set_response_timeout(Server,&Server_Time);
-        
-//         /* Clear the reference set of socket */
-//         FD_ZERO(&refset);
-//         /* Add the server socket */
-//         FD_SET(Socket, &refset);
-
-//         fprintf(stderr, " %s\n",modbus_strerror(errno));
-//         Server_Connect = 0;
-//     }
-
-//     /* circular from here */
-//     rdset = refset;
-//     if (select(fdmax+1, &rdset, NULL, NULL, &Server_Time) == -1) {
-//         perror("Server select() failure.");
-//         //close_sigint(1);
-//     }
-
-//     /* Run through the existing connections looking for data to be read */
-//     PNODE pnow;
-//     for(pnow = pStart->pNext;pnow;pnow=pnow->pNext)
-//     {
-//         if (!FD_ISSET(pnow->fd, &rdset)) 
-//         {
-//             continue;
-//         }
-//         if (pnow->fd == Socket)
-//         {
-//             /* A client is asking a new connection */  
-//             /* Handle new connections */
-//             int new;
-//             addrlen = sizeof(clientaddr);
-//             memset(&clientaddr, 0, sizeof(clientaddr));
-//             //printf("clientaddr's add is %p\r\n",&clientaddr);
-//             new = insert_tail(pStart,accept(Socket, (struct sockaddr *)&clientaddr, &addrlen));
-//             if (new == -1)
-//             {
-//                 perror("Server accept() error");
-//             }
-//             else 
-//             {
-//                 FD_SET(new, &refset);
-//                 if (new > fdmax)
-//                 {
-//                     /* Keep track of the maximum */
-//                     fdmax = new;
-//                 }
-//                 printf("New connection from %s:%d on socket %d\n",inet_ntoa(clientaddr.sin_addr), clientaddr.sin_port, new);
-//                 printf("fdmax is %d\r\n",fdmax);
-//             }
-//         }
-//         else 
-//         {
-//             int rc;
-//             modbus_set_socket(Server, pnow->fd);
-//             rc = modbus_receive(Server, query);
-//             if(rc > 0)
-//             {
-//                 modbus_reply(Server, query, rc, mb_mapping);
-//             } 
-//             else if(rc == -1)
-//             {
-//                 /* This example server in ended on connection closing or
-//                  * any errors. */
-//                 printf("Connection closed on socket %d\n", pnow->fd);
-//                 close(pnow->fd);
-
-//                 /* Remove from reference set */
-//                 FD_CLR(pnow->fd, &refset);
-//                 if (pnow->fd == fdmax)
-//                 {
-//                     fdmax--;
-//                 }
-//                 delete_list(pStart,pnow->fd);
-//             }
-//         }
-//     }
-// }
-
-
-
 /* select with fd*/
 // {
 //     //fprintf(stdout, "I'm Server!\n");
@@ -787,9 +662,6 @@ void CDECL CDECL_EXT modbus_tcp_server__main(modbus_tcp_server_main_struct *p)//
 //         //     p->pInstance->Error = errno;;
 //         // }
 //         // fprintf(stderr, "return of accept is %d\r\n",temp);
-
-
-
 //         rdset = refset;
 //         if (select(fdmax+1, &rdset, NULL, NULL, &Server_Time) == -1) {
 //             perror("Server select() failure.");
@@ -859,7 +731,7 @@ void CDECL CDECL_EXT modbus_tcp_server__main(modbus_tcp_server_main_struct *p)//
 //         }
 // }
 
-/* backups */
+/* single link server */
 // void CDECL CDECL_EXT modbus_tcp_server__main(modbus_tcp_server_main_struct *p)
 // {
 //     /* codesys controls launch */
@@ -932,46 +804,3 @@ void CDECL CDECL_EXT modbus_tcp_server__main(modbus_tcp_server_main_struct *p)//
 //         fprintf(stderr, " %s\n",modbus_strerror(errno));
 //         Server_Connect = 0;
 //     }
-
-//     /* massage transmission*/
-//     int rc;
-//     rc = modbus_receive(Server, query);
-//     if (rc > 0) 
-//     {
-//         /* rc is the query size */
-//         modbus_reply(Server, query, rc, mb_mapping);
-//     } 
-//     else if (rc == -1) 
-//     {
-//         /* Connection closed by the client or error */
-//         fprintf(stderr, "Failed to connection with client: %s\n",modbus_strerror(errno));
-//         p->pInstance->Error = errno;
-//         mb_mapping->tab_registers = temp_tab_registers;
-//         mb_mapping->tab_input_registers = temp_tab_input_registers;
-// 		modbus_mapping_free(mb_mapping);
-//         close(socket);
-// 		modbus_close(Server);
-// 		modbus_free(Server);
-//         Server_Connect = 1;
-//     }
-//     //printf("bye!\r\n");
-// }
-
-
-/* chain table */
-// if(Server_Connect == 1)
-// {
-//     PNODE pHead = create_head();
-//     for(int i=0;i<10;i++)
-//     {
-//         insert_tail(pHead,i);
-//     }
-//     delete_list(pHead,0);
-//     delete_list(pHead,9);
-//     delete_list(pHead,7);
-//     insert_tail(pHead,10);
-//     delete_list(pHead,8);
-//     insert_tail(pHead,9);
-//     printlist(pHead);
-//     Server_Connect = 0;
-// }
